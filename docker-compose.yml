@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  db_taller:
+    image: postgres:15-alpine
+    container_name: taller_db
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: db_taller
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata_taller:/var/lib/postgresql/data
+    networks:
+      - taller_network
+
+  db_inventario:
+    image: postgres:15-alpine
+    container_name: inventario_db
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: db_inventario
+    ports:
+      - '5433:5432'
+    volumes:
+      - pgdata_inventario:/var/lib/postgresql/data
+    networks:
+      - taller_network
+
+  db_auth:
+    image: postgres:15-alpine
+    container_name: auth_db
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: db_auth
+    ports:
+      - '5434:5432'
+    volumes:
+      - pgdata_auth:/var/lib/postgresql/data
+    networks:
+      - taller_network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: taller_rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - taller_network
+
+networks:
+  taller_network:
+    driver: bridge
+
+volumes:
+  pgdata_taller:
+  pgdata_inventario:
+  pgdata_auth:
+  rabbitmq_data:

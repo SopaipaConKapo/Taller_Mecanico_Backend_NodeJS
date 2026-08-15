@@ -5,8 +5,8 @@
 Plataforma multiplataforma para la gestión operativa, financiera y de clientes de un taller mecánico automotriz. El sistema descentraliza la administración a través de una arquitectura de microservicios, permitiendo control de inventario preciso, validación técnica de piezas (OEM), gestión de backorders, facturación automatizada y comunicación en tiempo real con clientes vía WhatsApp.
 
 ## 2. Stack Tecnológico
-*   **Backend:** Node.js con Express/NestJS (Arquitectura de Microservicios).
-*   **Base de Datos:** PostgreSQL (Bases de datos aisladas por servicio).
+*   **Backend:** Node.js con NestJS (Arquitectura de Microservicios).
+*   **Base de Datos:** PostgreSQL (Bases de datos aisladas por servicio) con Prisma ORM.
 *   **Frontend Web (Administración/Gerencia):** React.js + Tailwind CSS.
 *   **Frontend Móvil (Mecánicos/Clientes):** React Native.
 *   **Comunicación Asíncrona:** RabbitMQ o Kafka (Message Broker).
