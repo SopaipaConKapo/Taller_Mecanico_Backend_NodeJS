@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/@prisma/inventory-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Repuesto {
+  id                        Int                        @id @default(autoincrement())
+  nombre                    String
+  codigo_oem                String                     @unique
+  precio_costo              Decimal                    @db.Decimal(10, 2)
+  precio_venta              Decimal                    @db.Decimal(10, 2)
+  stock                     Int                        @default(0)
+  is_active                 Boolean                    @default(true)
+  codigos_alternativos      CodigoAlternativo[]
+  compatibilidad_vehiculos  CompatibilidadVehiculo[]
+  movimientos_inventario    MovimientoInventario[]
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
+}
+
+model CodigoAlternativo {
+  id                        Int        @id @default(autoincrement())
+  codigo_fabricante_externo String
+  repuesto                  Repuesto   @relation(fields: [repuesto_id], references: [id])
+  repuesto_id               Int
+}
+
+model CompatibilidadVehiculo {
+  id          Int      @id @default(autoincrement())
+  marca       String
+  modelo      String
+  rango_anios String
+  repuesto    Repuesto @relation(fields: [repuesto_id], references: [id])
+  repuesto_id Int
+}
+
+enum Urgencia {
+  BAJA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum EstadoSolicitud {
+  PENDIENTE
+  EN_PROCESO
+  COMPLETADA
+  CANCELADA
+}
+
+model SolicitudAbastecimiento {
+  id                  Int             @id @default(autoincrement())
+  referencia_orden_id Int?            // ID of the work order in the Workshop service
+  vin_vehiculo        String?
+  descripcion_pieza   String
+  urgencia            Urgencia        @default(MEDIA)
+  estado              EstadoSolicitud @default(PENDIENTE)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+}
+
+enum TipoMovimiento {
+  ENTRADA
+  SALIDA
+  AJUSTE
+}
+
+model MovimientoInventario {
+  id                  Int            @id @default(autoincrement())
+  tipo                TipoMovimiento
+  cantidad            Int
+  referencia_orden_id Int?           // ID of the work order in Workshop service
+  repuesto            Repuesto       @relation(fields: [repuesto_id], references: [id])
+  repuesto_id         Int
+  createdAt           DateTime       @default(now())
+}

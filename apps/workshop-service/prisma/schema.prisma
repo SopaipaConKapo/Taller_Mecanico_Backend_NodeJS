@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/@prisma/workshop-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cliente {
+  id        Int        @id @default(autoincrement())
+  nombre    String
+  telefono  String?
+  auth_id   String?    @unique // To map with auth provider
+  vehiculos Vehiculo[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Vehiculo {
+  id              Int             @id @default(autoincrement())
+  vin             String          @unique
+  marca           String
+  modelo          String
+  motor           String?
+  ano             Int
+  cliente         Cliente         @relation(fields: [cliente_id], references: [id])
+  cliente_id      Int
+  ordenes_trabajo OrdenTrabajo[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model CatalogoServicio {
+  id              Int               @id @default(autoincrement())
+  nombre          String
+  precio_base     Decimal           @db.Decimal(10, 2)
+  is_combo        Boolean           @default(false)
+  combos_padre    ServicioCombo[]   @relation("ComboPadre")
+  combos_hijo     ServicioCombo[]   @relation("ComboHijo")
+  orden_servicios OrdenTrabajoServicio[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model ServicioCombo {
+  id               Int              @id @default(autoincrement())
+  combo_padre      CatalogoServicio @relation("ComboPadre", fields: [id_combo], references: [id])
+  id_combo         Int
+  servicio_hijo    CatalogoServicio @relation("ComboHijo", fields: [id_servicio_hijo], references: [id])
+  id_servicio_hijo Int
+
+  @@unique([id_combo, id_servicio_hijo])
+}
+
+enum EstadoOrden {
+  CREADA
+  EN_DIAGNOSTICO
+  ESPERANDO_REPUESTOS
+  EN_REPARACION
+  LISTO_PARA_RETIRO
+  ENTREGADO
+  CANCELADO
+}
+
+model OrdenTrabajo {
+  id             Int                     @id @default(autoincrement())
+  estado         EstadoOrden             @default(CREADA)
+  fecha_ingreso  DateTime                @default(now())
+  mecanico_id    String?                 // auth_id of the mechanic
+  vehiculo       Vehiculo                @relation(fields: [vehiculo_id], references: [id])
+  vehiculo_id    Int
+  servicios      OrdenTrabajoServicio[]
+  repuestos      OrdenTrabajoRepuesto[]
+  updatedAt      DateTime                @updatedAt
+}
+
+model OrdenTrabajoServicio {
+  id               Int              @id @default(autoincrement())
+  precio_cobrado   Decimal          @db.Decimal(10, 2)
+  descripcion_final String?
+  orden_trabajo    OrdenTrabajo     @relation(fields: [orden_id], references: [id])
+  orden_id         Int
+  servicio         CatalogoServicio @relation(fields: [servicio_id], references: [id])
+  servicio_id      Int
+}
+
+enum OrigenRepuesto {
+  TALLER
+  CLIENTE
+}
+
+enum EstadoAbastecimiento {
+  EN_STOCK
+  PENDIENTE_BACKORDER
+  RECIBIDO
+}
+
+model OrdenTrabajoRepuesto {
+  id                    Int                  @id @default(autoincrement())
+  repuesto_id_inventario Int?                // Maps to the inventory service DB. Null if CLIENTE
+  origen                OrigenRepuesto       @default(TALLER)
+  estado_abastecimiento EstadoAbastecimiento @default(EN_STOCK)
+  precio_venta          Decimal              @db.Decimal(10, 2)
+  orden_trabajo         OrdenTrabajo         @relation(fields: [orden_id], references: [id])
+  orden_id              Int
+}
