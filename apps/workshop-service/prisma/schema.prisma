@@ -73,7 +73,33 @@ model OrdenTrabajo {
   vehiculo_id    Int
   servicios      OrdenTrabajoServicio[]
   repuestos      OrdenTrabajoRepuesto[]
+  factura        Factura?
   updatedAt      DateTime                @updatedAt
+}
+
+enum EstadoFactura {
+  PENDIENTE
+  PAGADA
+  FALLIDA
+}
+
+enum MetodoPago {
+  EFECTIVO
+  TARJETA
+  TRANSFERENCIA
+  MERCADOPAGO
+}
+
+model Factura {
+  id                 Int           @id @default(autoincrement())
+  monto_total        Decimal       @db.Decimal(10, 2)
+  estado             EstadoFactura @default(PENDIENTE)
+  metodo_pago        MetodoPago?
+  external_reference String?       @unique // ID from MercadoPago / Transbank
+  orden_trabajo      OrdenTrabajo  @relation(fields: [orden_id], references: [id])
+  orden_id           Int           @unique
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 }
 
 model OrdenTrabajoServicio {
