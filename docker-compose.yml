@@ -60,6 +60,16 @@ services:
     networks:
       - taller_network
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared_tunnel
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - taller_network
+
 networks:
   taller_network:
     driver: bridge
