@@ -1,98 +1,53 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚗 Taller Mecánico - Backend NodeJS (Microservicios)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+[![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://prisma.io)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org)
+[![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)](https://rabbitmq.com)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Este repositorio contiene la arquitectura de Backend para la gestión integral de un Taller Mecánico. Está construido utilizando **NestJS** bajo un patrón de **Microservicios**, comunicándose mediante eventos en **RabbitMQ** y almacenando datos de manera independiente en **PostgreSQL**.
 
-## Description
+## 📑 Índice de Documentación
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Toda la documentación técnica, arquitectónica y de ciberseguridad se encuentra en la carpeta `/Docs`:
 
-## Project setup
+1. [📖 Documentación Técnica y Base de Datos](Docs/Documentacion_Tecnica.md)
+2. [🔗 Arquitectura de Integraciones y Webhooks](Docs/Arquitectura_Integraciones.md)
+3. [🛡️ Guía de Seguridad y Servidor Local (VPS/VirtualBox)](Docs/Guia_Seguridad_Servidor_Local.md)
+4. [💻 Guía de Desarrollo Local](Docs/Guia_Desarrollo_Local.md)
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## 🏗️ Estructura del Monorepo
 
-```bash
-# development
-$ npm run start
+El proyecto utiliza el sistema de Workspaces de NestJS. La lógica está separada en aplicaciones independientes dentro de la carpeta `apps/`:
 
-# watch mode
-$ npm run start:dev
+*   **`api-gateway` (Puerto 3000):** El punto de entrada público. Gestiona la Autenticación (JWT), roles de usuario, y enruta peticiones hacia los microservicios.
+*   **`inventory-service` (Puerto 3001):** Gestiona el catálogo de repuestos, stock, soft-deletes y valorización.
+*   **`workshop-service` (Puerto 3002):** El núcleo del negocio. Administra Vehículos, Órdenes de Trabajo, Facturación, Webhooks de Pagos POS y catálogos de mano de obra.
+*   **`notification-service` (Puerto 3003):** Aplicación híbrida. Escucha eventos internos por RabbitMQ (ej. *Stock Bajo*) para alertar, y expone Webhooks HTTP para interactuar con clientes vía WhatsApp utilizando IA (OpenAI).
 
-# production mode
-$ npm run start:prod
-```
+---
 
-## Run tests
+## 🚀 Despliegue Rápido (Producción Local)
 
-```bash
-# unit tests
-$ npm run test
+Si deseas levantar el servidor completo en tu entorno de producción local (ej. VirtualBox) utilizando Docker y Cloudflare Tunnels:
 
-# e2e tests
-$ npm run test:e2e
+1. Configura tu token de Cloudflare:
+   ```bash
+   export CLOUDFLARE_TUNNEL_TOKEN="tu-token-aqui"
+   ```
+2. Ejecuta el script automatizado:
+   ```bash
+   bash deploy_local.sh
+   ```
 
-# test coverage
-$ npm run test:cov
-```
+---
 
-## Deployment
+## 🛡️ Características Principales
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+*   **Facturación POS:** Integración con máquinas de tarjetas (MercadoPago/Transbank) vía webhooks.
+*   **Cotizaciones Inteligentes:** Bot de WhatsApp impulsado por Inteligencia Artificial (OpenAI) para cotizar servicios en tiempo real.
+*   **Arquitectura Desacoplada:** Si el servicio de notificaciones se cae, el taller puede seguir operando y cobrando con normalidad.
+*   **Seguridad Zero Trust:** Compatible con túneles inversos para no exponer puertos del router doméstico.
