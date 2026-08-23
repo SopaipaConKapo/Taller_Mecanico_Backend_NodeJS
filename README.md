@@ -16,6 +16,7 @@ Toda la documentación técnica, arquitectónica y de ciberseguridad se encuentr
 2. [🔗 Arquitectura de Integraciones y Webhooks](Docs/Arquitectura_Integraciones.md)
 3. [🛡️ Guía de Seguridad y Servidor Local (VPS/VirtualBox)](Docs/Guia_Seguridad_Servidor_Local.md)
 4. [💻 Guía de Desarrollo Local](Docs/Guia_Desarrollo_Local.md)
+5. [🖥️ Guía Paso a Paso: Despliegue en Máquina Virtual (VirtualBox con Linux)](Docs/Guia_Despliegue_VirtualBox.md)
 
 ---
 
