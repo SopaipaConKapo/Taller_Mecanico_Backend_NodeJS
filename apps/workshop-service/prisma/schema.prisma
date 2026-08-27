@@ -40,6 +40,7 @@ model CatalogoServicio {
   combos_padre    ServicioCombo[]   @relation("ComboPadre")
   combos_hijo     ServicioCombo[]   @relation("ComboHijo")
   orden_servicios OrdenTrabajoServicio[]
+  cotizaciones    CotizacionServicio[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 }
@@ -74,6 +75,7 @@ model OrdenTrabajo {
   servicios      OrdenTrabajoServicio[]
   repuestos      OrdenTrabajoRepuesto[]
   factura        Factura?
+  cotizaciones   Cotizacion[]
   updatedAt      DateTime                @updatedAt
 }
 
@@ -131,4 +133,43 @@ model OrdenTrabajoRepuesto {
   precio_venta          Decimal              @db.Decimal(10, 2)
   orden_trabajo         OrdenTrabajo         @relation(fields: [orden_id], references: [id])
   orden_id              Int
+}
+
+enum EstadoCotizacion {
+  PENDIENTE_APROBACION
+  APROBADA
+  RECHAZADA
+}
+
+model Cotizacion {
+  id              Int                  @id @default(autoincrement())
+  orden_id        Int
+  orden_trabajo   OrdenTrabajo         @relation(fields: [orden_id], references: [id])
+  estado          EstadoCotizacion     @default(PENDIENTE_APROBACION)
+  validez_dias    Int                  @default(7)
+  monto_total     Decimal              @db.Decimal(10, 2)
+  servicios       CotizacionServicio[]
+  repuestos       CotizacionRepuesto[]
+  observaciones   String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+}
+
+model CotizacionServicio {
+  id               Int              @id @default(autoincrement())
+  cotizacion_id    Int
+  cotizacion       Cotizacion       @relation(fields: [cotizacion_id], references: [id])
+  servicio_id      Int
+  servicio         CatalogoServicio @relation(fields: [servicio_id], references: [id])
+  precio_estimado  Decimal          @db.Decimal(10, 2)
+}
+
+model CotizacionRepuesto {
+  id                     Int        @id @default(autoincrement())
+  cotizacion_id          Int
+  cotizacion             Cotizacion @relation(fields: [cotizacion_id], references: [id])
+  repuesto_id_inventario Int?       // from inventory
+  nombre_repuesto        String?    // fallback if no inventory item
+  cantidad               Int        @default(1)
+  precio_estimado        Decimal    @db.Decimal(10, 2)
 }

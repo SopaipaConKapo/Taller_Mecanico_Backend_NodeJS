@@ -7,6 +7,7 @@ import { OrdenesTrabajoModule } from './ordenes-trabajo/ordenes-trabajo.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { FacturacionModule } from './facturacion/facturacion.module';
 import { ClientesModule } from './clientes/clientes.module';
+import { CotizacionesModule } from './cotizaciones/cotizaciones.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ClientesModule } from './clientes/clientes.module';
     VehiculosModule,
     FacturacionModule,
     ClientesModule,
+    CotizacionesModule,
     ClientsModule.register([
       {
         name: 'NOTIFICATIONS_SERVICE',
