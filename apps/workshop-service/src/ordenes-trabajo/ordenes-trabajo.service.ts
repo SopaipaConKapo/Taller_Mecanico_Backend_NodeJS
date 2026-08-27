@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class OrdenesTrabajoService {
-  constructor(private prisma: PrismaService) {}
+    constructor(
+      private prisma: PrismaService,
+      @Inject('NOTIFICATIONS_SERVICE') private notificationsClient: ClientProxy,
+      @Inject('INVENTORY_SERVICE') private inventoryClient: ClientProxy,
+    ) {}
 
   async create(data: { vehiculo_id: number; mecanico_id?: string }) {
     return this.prisma.ordenTrabajo.create({
@@ -24,7 +29,7 @@ export class OrdenesTrabajoService {
   async findOne(id: number) {
     const orden = await this.prisma.ordenTrabajo.findUnique({
       where: { id },
-      include: { vehiculo: true, servicios: true, repuestos: true },
+      include: { vehiculo: { include: { cliente: true } }, servicios: true, repuestos: true },
     });
     if (!orden) throw new NotFoundException(`Orden ${id} no encontrada`);
     return orden;
@@ -34,15 +39,22 @@ export class OrdenesTrabajoService {
     const orden = await this.prisma.ordenTrabajo.update({
       where: { id },
       data: { estado },
+      include: { vehiculo: { include: { cliente: true } } }
     });
 
-    // TODO: Publish RabbitMQ event if estado is 'LISTO_PARA_RETIRO' to notify via WhatsApp
+    if (estado === 'LISTO_PARA_RETIRO') {
+      const clienteTelefono = orden.vehiculo?.cliente?.telefono || '+56900000000';
+      this.notificationsClient.emit('estado_vehiculo_actualizado', {
+        vehiculoId: orden.vehiculo_id,
+        estado: estado,
+        clienteTelefono: clienteTelefono,
+      });
+    }
     
     return orden;
   }
 
   async addRepuesto(ordenId: number, data: { repuesto_id_inventario?: number; origen: 'TALLER' | 'CLIENTE'; precio_venta?: number }) {
-    // Facturación Mixta Logic
     const precio = data.origen === 'CLIENTE' ? 0 : data.precio_venta || 0;
 
     const repuesto = await this.prisma.ordenTrabajoRepuesto.create({
@@ -55,7 +67,13 @@ export class OrdenesTrabajoService {
       },
     });
 
-    // TODO: If origen is TALLER, emit RabbitMQ event to discount stock in inventory-service
+    if (data.origen === 'TALLER' && data.repuesto_id_inventario) {
+      this.inventoryClient.emit('repuesto_utilizado_en_taller', {
+        repuesto_id: data.repuesto_id_inventario,
+        cantidad: 1,
+        orden_id: ordenId,
+      });
+    }
     
     return repuesto;
   }

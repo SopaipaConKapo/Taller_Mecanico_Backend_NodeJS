@@ -34,16 +34,25 @@ Como es un monorepo administrado por NestJS, instalaremos las dependencias en la
 npm install
 ```
 
-### 4. Sincronizar Prisma (Bases de Datos)
-Cada microservicio tiene su propia base de datos y esquema de Prisma. Debemos generar los clientes y sincronizar las tablas.
+### 4. Variables de Entorno y Sincronización de Prisma
+Los microservicios con base de datos propia (`inventory-service` y `workshop-service`) requieren la variable `DATABASE_URL` para conectarse a sus respectivos contenedores de PostgreSQL.
 
-**Para el API Gateway (Base de datos Auth):**
-```bash
-cd apps/api-gateway
-npx prisma generate
-npx prisma db push
-cd ../..
-```
+Asegúrate de que cada servicio tenga su archivo `.env` configurado:
+
+* **`apps/inventory-service/.env`**:
+  ```env
+  DATABASE_URL="postgresql://root:rootpassword@localhost:5433/db_inventario?schema=public"
+  ```
+
+* **`apps/workshop-service/.env`**:
+  ```env
+  DATABASE_URL="postgresql://root:rootpassword@localhost:5432/db_taller?schema=public"
+  RABBITMQ_URL="amqp://localhost:5672"
+  ```
+
+> **Nota:** El `api-gateway` y `notification-service` no utilizan Prisma ni base de datos propia, pero requieren la variable `RABBITMQ_URL="amqp://localhost:5672"`.
+
+Una vez configuradas las variables, generamos los clientes y sincronizamos las tablas:
 
 **Para Inventory Service:**
 ```bash
