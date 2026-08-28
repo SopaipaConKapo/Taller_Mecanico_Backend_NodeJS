@@ -1,4 +1,4 @@
-import { Controller, All, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, All, Req, Res, UseGuards, Get } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -19,11 +19,30 @@ export class ApiGatewayController {
     on: { proxyReq: fixRequestBody }
   });
 
+  private authProxy = createProxyMiddleware({
+    target: 'http://localhost:3002', // auth belongs to workshop-service
+    changeOrigin: true,
+    pathRewrite: { '^/api/auth': '/auth' },
+    on: { proxyReq: fixRequestBody }
+  });
+
+  // Test endpoint para Rate Limit
+  @Get('ping')
+  ping() {
+    return 'pong';
+  }
+
   // Proxy to Inventory Service
   @All('inventory/*')
   @UseGuards(JwtAuthGuard)
   handleInventory(@Req() req: Request, @Res() res: Response, next: any) {
     this.inventoryProxy(req as any, res as any, next);
+  }
+
+  // Proxy to Auth Service (Workshop handles this)
+  @All('auth/*')
+  handleAuth(@Req() req: Request, @Res() res: Response, next: any) {
+    this.authProxy(req as any, res as any, next);
   }
 
   // Proxy to Workshop Service

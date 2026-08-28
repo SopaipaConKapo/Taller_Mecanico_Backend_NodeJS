@@ -8,6 +8,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { FacturacionModule } from './facturacion/facturacion.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { CotizacionesModule } from './cotizaciones/cotizaciones.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CotizacionesModule } from './cotizaciones/cotizaciones.module';
     FacturacionModule,
     ClientesModule,
     CotizacionesModule,
+    AuthModule,
     ClientsModule.register([
       {
         name: 'NOTIFICATIONS_SERVICE',
