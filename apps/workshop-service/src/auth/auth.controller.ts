@@ -9,7 +9,8 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto.email, registerDto.password, registerDto.nombre, registerDto.rol);
+    // Para registro público, se fuerza SIEMPRE el rol USUARIO (Clientes)
+    return this.authService.register(registerDto.email, registerDto.password, registerDto.nombre, 'USUARIO');
   }
 
   @Post('login')

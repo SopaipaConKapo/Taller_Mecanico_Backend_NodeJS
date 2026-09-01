@@ -1,22 +1,30 @@
 import { Controller, All, Req, Res, UseGuards, Get } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody, Options } from 'http-proxy-middleware';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Controller('api')
 export class ApiGatewayController {
+  private injectAuthHeaders = (proxyReq: any, req: any, res: any) => {
+    if (req.user) {
+      proxyReq.setHeader('x-user-id', req.user.userId);
+      proxyReq.setHeader('x-user-roles', JSON.stringify(req.user.roles || []));
+    }
+    fixRequestBody(proxyReq, req);
+  };
+
   private inventoryProxy = createProxyMiddleware({
     target: 'http://localhost:3001',
     changeOrigin: true,
     pathRewrite: { '^/api/inventory': '' },
-    on: { proxyReq: fixRequestBody }
+    on: { proxyReq: this.injectAuthHeaders }
   });
 
   private workshopProxy = createProxyMiddleware({
     target: 'http://localhost:3002',
     changeOrigin: true,
     pathRewrite: { '^/api/workshop': '' },
-    on: { proxyReq: fixRequestBody }
+    on: { proxyReq: this.injectAuthHeaders }
   });
 
   private authProxy = createProxyMiddleware({

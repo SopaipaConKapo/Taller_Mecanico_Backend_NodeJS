@@ -9,6 +9,7 @@ import { FacturacionModule } from './facturacion/facturacion.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { CotizacionesModule } from './cotizaciones/cotizaciones.module';
 import { AuthModule } from './auth/auth.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AuthModule } from './auth/auth.module';
     ClientesModule,
     CotizacionesModule,
     AuthModule,
+    UsuariosModule,
     ClientsModule.register([
       {
         name: 'NOTIFICATIONS_SERVICE',

@@ -42,7 +42,7 @@ export class AuthService {
         email,
         password: hashedPassword,
         nombre,
-        rol: rol || 'MECANICO'
+        rol: rol || 'USUARIO'
       }
     });
     const { password, ...result } = user;

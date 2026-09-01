@@ -179,7 +179,7 @@ model Usuario {
   email     String   @unique
   password  String
   nombre    String
-  rol       String   @default("MECANICO") // MECANICO, ADMIN
+  rol       String   @default("USUARIO") // USUARIO, MECANICO, ADMIN
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
